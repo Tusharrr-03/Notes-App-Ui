@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 TextEditingController notesController = TextEditingController();
 
 class NewPage extends StatelessWidget{
+  const NewPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +26,7 @@ class NewPage extends StatelessWidget{
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(11),
                       ),
-                      child: Icon(Icons.arrow_back_ios_new , color: Colors.white,),
+                      child: const Icon(Icons.arrow_back_ios_new , color: Colors.white,),
                     ),
                     Container(
                       height: 40,
@@ -34,19 +36,19 @@ class NewPage extends StatelessWidget{
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(11),
                       ),
-                      child: Text("Save" , style: TextStyle(fontSize: 17 ,color: Colors.white), textAlign: TextAlign.center,),
+                      child: const Text("Save" , style: TextStyle(fontSize: 17 ,color: Colors.white), textAlign: TextAlign.center,),
                     ),
                   ],
-                ),SizedBox(height: 30,),
-                Text("Title" , style: TextStyle(fontSize: 35 , color: Colors.grey),),SizedBox(height: 30,),
-                Container(
+                ),const SizedBox(height: 30,),
+                const Text("Title" , style: TextStyle(fontSize: 35 , color: Colors.grey),),const SizedBox(height: 30,),
+                SizedBox(
                   width: double.infinity,
                   child: TextField(
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                     controller: notesController,
                     maxLines: null,
                     keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.black)
                       ),
