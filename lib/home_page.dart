@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:notes_ui/db_helper.dart';
 
 /*List<Map<String, dynamic>> mNotes = [
@@ -55,8 +56,8 @@ import 'package:notes_ui/db_helper.dart';
   },
 ];*/
 
-
-List<Map<String , dynamic>> mData = [];
+TextEditingController mTitleController = TextEditingController();
+TextEditingController mDescController = TextEditingController();
 
 class HomePage extends StatefulWidget {
   @override
@@ -64,7 +65,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  DbHelper ?mDB;
+  DbHelper? mDB;
+
+  List<Map<String , dynamic>> mData = [];
 
   @override
   void initState() {
@@ -83,12 +86,14 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text("HOME"),
+      ),
       body: mData.isNotEmpty ? ListView.builder(
         itemCount: mData.length,
           itemBuilder: (_ , index)
           {
-            ListTile(
+             return ListTile(
               title: Text(mData[index][DbHelper.COLUMN_NOTES_TITLE]),
               subtitle: Text(mData[index][DbHelper.COLUMN_NOTES_DESC]),
             );
@@ -96,12 +101,71 @@ class _HomePageState extends State<HomePage> {
         child: Text("No notes yet!!"),
       ),
       floatingActionButton: FloatingActionButton(onPressed: ()async{
-        bool check = await mDB!.addNotes(title: "New Note", desc: "Welcome to Jodhpur");
 
-        if(check){
-          print("Note Added");
-          getAllNotes();
-        }
+        mTitleController.clear();
+        mDescController.clear();
+
+        showModalBottomSheet(context: context, builder: (_){
+          return Container(
+            width: double.infinity,
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  Icon(Iconsax.arrow_up_2),SizedBox(height: 15,),
+                  TextField(
+                    controller: mTitleController,
+                    decoration: InputDecoration(
+                      label: Text("Title"),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide: BorderSide(color: Colors.black54),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide: BorderSide(color: Colors.black54),
+                      )
+                    ),
+                  ),SizedBox(height: 10,),
+                  TextField(
+                    controller: mDescController,
+                    decoration: InputDecoration(
+                        label: Text("Desc"),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide: BorderSide(color: Colors.black54),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide: BorderSide(color: Colors.black54),
+                      )
+                    ),
+                  ),SizedBox(height: 10,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(onPressed: () async{
+                        bool check = await mDB!.addNotes(title: mTitleController.text, desc: mDescController.text);
+
+                        if(check){
+                          getAllNotes();
+                          Navigator.pop(context);
+                        }
+
+                      }, child: Text("Add")),SizedBox(width: 8,),
+                      OutlinedButton(onPressed: () async{
+                        mTitleController.clear();
+                        mDescController.clear();
+                      }, child: Text("Clear")),
+                    ],
+                  )
+
+                ],
+              ),
+            ),
+          );
+        });
 
       }, child: Icon(Icons.add),
       ),
@@ -198,3 +262,56 @@ class _HomePageState extends State<HomePage> {
 //           child: const Icon(Icons.add),
 //         ),
 //       ),
+
+
+
+/*
+
+titleController.clear();
+descController.clear();
+
+showModalBottomSheet(context: context, builder: (_){
+return Container(
+padding: EdgeInsets.all(11),
+color: Colors.white,
+width: double.infinity,
+child: Column(
+children: [
+Text("Add Note", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 21),),
+SizedBox(
+height: 11,
+),
+TextField(
+controller: titleController,
+decoration: InputDecoration(
+label: Text("Title"),
+hintText: "Enter title here..",
+focusedBorder: OutlineInputBorder(),
+enabledBorder: OutlineInputBorder(),
+),
+),
+SizedBox(
+height: 11,
+),
+TextField(
+controller: descController,
+decoration: InputDecoration(
+label: Text("Desc"),
+hintText: "Enter desc here..",
+focusedBorder: OutlineInputBorder(),
+enabledBorder: OutlineInputBorder(),
+),
+),
+SizedBox(
+height: 11,
+),
+Row(
+mainAxisAlignment: MainAxisAlignment.end,
+children: [
+OutlinedButton(onPressed: () async{
+bool check = await mDb!.addNote(title: titleController.text, desc: descController.text);
+
+if(check){
+getAllNotes();
+Navigator.pop(context);
+}*/
