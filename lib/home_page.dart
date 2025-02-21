@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:notes_ui/db_helper.dart';
+import 'package:notes_ui/new_page.dart';
+import 'package:notes_ui/note_model.dart';
 
 /*List<Map<String, dynamic>> mNotes = [
   {
@@ -67,7 +69,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   DbHelper? mDB;
 
-  List<Map<String , dynamic>> mData = [];
+  List<NoteModel> mData = [];
 
   @override
   void initState() {
@@ -93,14 +95,29 @@ class _HomePageState extends State<HomePage> {
         itemCount: mData.length,
           itemBuilder: (_ , index)
           {
-             return ListTile(
-              title: Text(mData[index][DbHelper.COLUMN_NOTES_TITLE]),
-              subtitle: Text(mData[index][DbHelper.COLUMN_NOTES_DESC]),
-            );
+             return InkWell(
+               onTap: (){
+                 Navigator.push(context, MaterialPageRoute(builder: (index) => NewPage()));
+               },
+               child: Row(
+                 children: [
+                   Expanded(
+                     child: ListTile(
+                      title: Text(mData[index].nTitle),
+                      subtitle: Text(mData[index].nDesc),
+                     ),
+                   ),
+                   IconButton(onPressed: (){}, icon: Icon(Icons.delete_forever_outlined)),
+                   IconButton(onPressed: (){}, icon: Icon(Icons.edit)),
+                 ],
+               ),
+             );
       }) : Center(
         child: Text("No notes yet!!"),
       ),
       floatingActionButton: FloatingActionButton(onPressed: ()async{
+
+        Navigator.push(context, MaterialPageRoute(builder: (index) => NewPage()));
 
         mTitleController.clear();
         mDescController.clear();
@@ -146,7 +163,11 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       OutlinedButton(onPressed: () async{
-                        bool check = await mDB!.addNotes(title: mTitleController.text, desc: mDescController.text);
+                        bool check = await mDB!.addNotes(newnote: NoteModel(
+                            nTitle: mTitleController.text,
+                            nDesc: mDescController.text,
+                            nCreatedAt: DateTime.now().millisecondsSinceEpoch.toString(),
+                        ));
 
                         if(check){
                           getAllNotes();

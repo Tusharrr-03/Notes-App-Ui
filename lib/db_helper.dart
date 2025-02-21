@@ -10,6 +10,8 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'note_model.dart';
+
 class DbHelper {
   DbHelper._();
 
@@ -50,24 +52,33 @@ class DbHelper {
 
 
   /// ADD VALUES TO THE DATABSE
-  Future<bool> addNotes({required String title , required String desc})async{
+  Future<bool> addNotes({required NoteModel newnote})async{
     Database db = await getDB();
 
-    int rowsEffected = await db.insert(TABLE_NOTES, {
-      COLUMN_NOTES_TITLE : title,
-      COLUMN_NOTES_DESC : desc,
-      COLUMN_NOTES_CREATED_AT : DateTime.now().millisecondsSinceEpoch.toString(),
-    });
+    int rowsEffected = await db.insert(TABLE_NOTES, newnote.toMap());
 
      return rowsEffected>0;
   }
 
   /// FETCH VALUES FROM DATABASE
-  Future<List<Map<String ,dynamic>>> fetchNotes() async{
+  Future<List<NoteModel>> fetchNotes() async{
     var db = await getDB();
 
     List<Map<String ,dynamic>> mNotes = await db.query(TABLE_NOTES);
-    return mNotes;
+
+    List<NoteModel> allNotes = [];
+    for(Map<String , dynamic> eachNotes in mNotes){
+      allNotes.add(NoteModel.fromMap(eachNotes));
+    }
+
+    /*for(int i = 0 ; i <= mNotes.length ; i++ ){
+      allNotes.add(NoteModel.fromMap(mNotes[i]));
+    }*/
+
+    return allNotes;
   }
+
+  /// DELETE VALUES FROM DATABASE
+
 
 }

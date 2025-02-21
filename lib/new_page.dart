@@ -1,66 +1,54 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-TextEditingController notesController = TextEditingController();
 
-class NewPage extends StatelessWidget{
+TextEditingController notesData = TextEditingController();
+
+class NewPage extends StatelessWidget {
   const NewPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25 , vertical: 30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      child: const Icon(Icons.arrow_back_ios_new , color: Colors.white,),
-                    ),
-                    Container(
-                      height: 40,
-                      width: 70,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      child: const Text("Save" , style: TextStyle(fontSize: 17 ,color: Colors.white), textAlign: TextAlign.center,),
-                    ),
-                  ],
-                ),const SizedBox(height: 30,),
-                const Text("Title" , style: TextStyle(fontSize: 35 , color: Colors.grey),),const SizedBox(height: 30,),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextField(
-                    style: const TextStyle(color: Colors.white),
-                    controller: notesController,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    decoration: const InputDecoration(
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black)
-                      ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    label: Text("Type something..." , style: TextStyle(color: Colors.grey),),
-                    ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10 , vertical: 5),
+                    child: Text("Save"),
                   ),
-                )
-              ],
-            ),
+                  ),
+                ],
+              ),
+              Text("Title" , style: TextStyle(fontSize: 38 , color: Colors.grey),),SizedBox(height: 20,),
+              TextField(
+                controller: notesData,
+                maxLines: null,
+                decoration: InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  hintText: "Enter Notes",
+                ),
+                keyboardType: TextInputType.multiline,
+              )
+
+            ],
           ),
         ),
       ),
