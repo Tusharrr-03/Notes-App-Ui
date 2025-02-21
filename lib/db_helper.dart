@@ -79,6 +79,24 @@ class DbHelper {
   }
 
   /// DELETE VALUES FROM DATABASE
+  Future<bool> deleteNote(int id) async{
+
+    var db =  await getDB();
+
+    int rowsEffected = await db.delete(TABLE_NOTES , where: "$COLUMN_NOTES_ID = $id");
+
+    return rowsEffected>0;
+  }
+
+  /// UPDATE VALUES FROM THE DATABASE
+   Future<bool> updateValue(NoteModel updatedValue) async{
+    var db = await getDB();
+
+    int rowsEffected = await db.update(TABLE_NOTES, updatedValue.toMap(),
+      where: "$COLUMN_NOTES_ID = ? " , whereArgs: ["${updatedValue.nID}"]);
+
+    return rowsEffected>0;
+  }
 
 
 }

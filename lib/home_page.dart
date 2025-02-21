@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:notes_ui/db_helper.dart';
 import 'package:notes_ui/new_page.dart';
 import 'package:notes_ui/note_model.dart';
@@ -61,15 +64,19 @@ import 'package:notes_ui/note_model.dart';
 TextEditingController mTitleController = TextEditingController();
 TextEditingController mDescController = TextEditingController();
 
+
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+
+  /// CREATING CONTRUCTOR GET ACCESS THE CLASS
   DbHelper? mDB;
 
   List<NoteModel> mData = [];
+
 
   @override
   void initState() {
@@ -90,249 +97,90 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("HOME"),
+        centerTitle: true,
       ),
-      body: mData.isNotEmpty ? ListView.builder(
+
+      /// GRID VIEW BUILDER
+      /// THIS mDATA ISNOTEMPTY IS TAKEN FOR TO DEFINE THAT IF THE DATA IS ADDED THEN THE GRIDVIEW CAN SHOW THE DATA IF IT'S NOT THEN THE TEXT CAN SHOW
+
+      body: mData.isNotEmpty ? GridView.builder(
         itemCount: mData.length,
-          itemBuilder: (_ , index)
-          {
-             return InkWell(
-               onTap: (){
-                 Navigator.push(context, MaterialPageRoute(builder: (index) => NewPage()));
-               },
-               child: Row(
-                 children: [
-                   Expanded(
-                     child: ListTile(
-                      title: Text(mData[index].nTitle),
-                      subtitle: Text(mData[index].nDesc),
-                     ),
-                   ),
-                   IconButton(onPressed: (){}, icon: Icon(Icons.delete_forever_outlined)),
-                   IconButton(onPressed: (){}, icon: Icon(Icons.edit)),
-                 ],
-               ),
-             );
-      }) : Center(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 9/11,
+          ),
+          itemBuilder: (_ , index) {
+
+          /// DATE FORMATE TITILE
+          var eachDate = DateTime.fromMillisecondsSinceEpoch(int.parse(mData[index].nCreatedAt));
+
+          /// DIALOUG BOX APPEARNING
+            return InkWell(
+              onTap: (){
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      actions: [
+
+                        /// DELETE BUTTON TASK
+                        OutlinedButton(onPressed: () async{
+                          bool check = await mDB!.deleteNote(mData[index].nID!);
+
+                          if(check){
+                            getAllNotes();
+                            Navigator.pop(context, MaterialPageRoute(builder: (index) => HomePage()));
+                          }
+                        }, child: Text("Delete")),
+
+                        /// UPDATE BUTTON TASK
+                        OutlinedButton(onPressed: () async{
+                         Navigator.push(context, MaterialPageRoute(builder: (context) => NewPage(isUpdate: true, title: mData[index].nTitle, desc: mData[index].nDesc, id: mData[index].nID, createdAt: mData[index].nCreatedAt,)));
+
+                        }, child: Text("Update")),
+                      ],
+                      title: Text("Please Select one option in it"),
+                    )
+                );
+              },
+
+              /// NOTES VISIBLE UI
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(21),
+                  color: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(mData[index].nTitle , style: TextStyle(fontSize: 22),),SizedBox(height: 20,),
+                      Text(mData[index].nDesc),Expanded(child: SizedBox(height: 10,)),
+                      Text("${eachDate.day}-${eachDate.month}-${eachDate.year}"),
+                    ],
+                  ),
+                ),
+              ),
+            );
+      }
+      ) : Center(
         child: Text("No notes yet!!"),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: ()async{
 
-        Navigator.push(context, MaterialPageRoute(builder: (index) => NewPage()));
+
+      /// NEW NOTE CREATED LOGIC IMPLEMENTED
+      floatingActionButton: FloatingActionButton(onPressed: ()async{
 
         mTitleController.clear();
         mDescController.clear();
 
-        showModalBottomSheet(context: context, builder: (_){
-          return Container(
-            width: double.infinity,
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  Icon(Iconsax.arrow_up_2),SizedBox(height: 15,),
-                  TextField(
-                    controller: mTitleController,
-                    decoration: InputDecoration(
-                      label: Text("Title"),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide(color: Colors.black54),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide(color: Colors.black54),
-                      )
-                    ),
-                  ),SizedBox(height: 10,),
-                  TextField(
-                    controller: mDescController,
-                    decoration: InputDecoration(
-                        label: Text("Desc"),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide(color: Colors.black54),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide(color: Colors.black54),
-                      )
-                    ),
-                  ),SizedBox(height: 10,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(onPressed: () async{
-                        bool check = await mDB!.addNotes(newnote: NoteModel(
-                            nTitle: mTitleController.text,
-                            nDesc: mDescController.text,
-                            nCreatedAt: DateTime.now().millisecondsSinceEpoch.toString(),
-                        ));
+        Navigator.push(context, MaterialPageRoute(builder: (index) => NewPage()));
 
-                        if(check){
-                          getAllNotes();
-                          Navigator.pop(context);
-                        }
-
-                      }, child: Text("Add")),SizedBox(width: 8,),
-                      OutlinedButton(onPressed: () async{
-                        mTitleController.clear();
-                        mDescController.clear();
-                      }, child: Text("Clear")),
-                    ],
-                  )
-
-                ],
-              ),
-            ),
-          );
-        });
 
       }, child: Icon(Icons.add),
       ),
     );
   }
 }
-
-
-/// Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-//         child: SafeArea(
-//           child: SingleChildScrollView(
-//             child: Column(
-//               children: [
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     const Text(
-//                       "Notes",
-//                       style: TextStyle(color: Colors.white, fontSize: 40),
-//                     ),
-//                     Container(
-//                       width: 40,
-//                       height: 40,
-//                       alignment: Alignment.center,
-//                       decoration: BoxDecoration(
-//                         color: Colors.white.withOpacity(0.2),
-//                         borderRadius: BorderRadius.circular(11),
-//                       ),
-//                       child: const FaIcon(
-//                         FontAwesomeIcons.search,
-//                         color: Colors.white,
-//                         size: 20,
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//                 const SizedBox(
-//                   height: 30,
-//                 ),
-//                 GridView.builder(
-//                   shrinkWrap: true,
-//                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//                     crossAxisCount: 2,
-//                     mainAxisSpacing: 15,
-//                     crossAxisSpacing: 12,
-//                     childAspectRatio: 9 / 12,
-//                   ),
-//                   itemCount: mNotes.length,
-//                   itemBuilder: (context, index) {
-//                     return Container(
-//                       decoration: BoxDecoration(
-//                         color: mNotes[index]['color'],
-//                         borderRadius: BorderRadius.circular(11),
-//                       ),
-//                       child: Padding(
-//                         padding: const EdgeInsets.symmetric(
-//                             horizontal: 20, vertical: 30),
-//                         child: Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               mNotes[index]['title'],
-//                               style: const TextStyle(fontSize: 16),
-//                             ),
-//                             const Expanded(
-//                                 child: SizedBox(
-//                               height: 10,
-//                             )),
-//                             Text(
-//                               mNotes[index]['date'],
-//                               style:
-//                                   TextStyle(color: mNotes[index]['text color']),
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     );
-//                   },
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//       floatingActionButton: Padding(
-//         padding: const EdgeInsets.all(8.0),
-//         child: FloatingActionButton(
-//           onPressed: () {},
-//           shape:
-//               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-//           backgroundColor: Colors.black,
-//           foregroundColor: const Color(0xffffffff),
-//           child: const Icon(Icons.add),
-//         ),
-//       ),
-
-
-
-/*
-
-titleController.clear();
-descController.clear();
-
-showModalBottomSheet(context: context, builder: (_){
-return Container(
-padding: EdgeInsets.all(11),
-color: Colors.white,
-width: double.infinity,
-child: Column(
-children: [
-Text("Add Note", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 21),),
-SizedBox(
-height: 11,
-),
-TextField(
-controller: titleController,
-decoration: InputDecoration(
-label: Text("Title"),
-hintText: "Enter title here..",
-focusedBorder: OutlineInputBorder(),
-enabledBorder: OutlineInputBorder(),
-),
-),
-SizedBox(
-height: 11,
-),
-TextField(
-controller: descController,
-decoration: InputDecoration(
-label: Text("Desc"),
-hintText: "Enter desc here..",
-focusedBorder: OutlineInputBorder(),
-enabledBorder: OutlineInputBorder(),
-),
-),
-SizedBox(
-height: 11,
-),
-Row(
-mainAxisAlignment: MainAxisAlignment.end,
-children: [
-OutlinedButton(onPressed: () async{
-bool check = await mDb!.addNote(title: titleController.text, desc: descController.text);
-
-if(check){
-getAllNotes();
-Navigator.pop(context);
-}*/
