@@ -1,9 +1,5 @@
 
 
-
-/// Flutter block kya hota hai
-/// or guruji sqllite to local level pr data store krta hai toh apn shared prefrence ka hi use nhi kr lete kya?
-
 import 'dart:io';
 
 import 'package:path/path.dart';
